@@ -170,6 +170,9 @@ async def handle_business_type(update: Update, context: ContextTypes.DEFAULT_TYP
     user_id = update.effective_user.id
     user_data[user_id] = {"business": update.message.text}
 
+    # 💾 Сохраняем после ввода вида бизнеса
+    save_partial_data(user_id)
+
     keyboard = [
         [InlineKeyboardButton("🐣 Только начал — хочу поставить на поток", callback_data="1_var")],
         [InlineKeyboardButton("💼 Работаю стабильно, но всё вручную", callback_data="2_var")],
@@ -181,10 +184,6 @@ async def handle_business_type(update: Update, context: ContextTypes.DEFAULT_TYP
     )
     return STEP_4
 
-async def handle_business_type(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user_id = update.effective_user.id
-    user_data[user_id] = {"business": update.message.text}
-    save_partial_data(user_id)
 
 # === 4. Крепость ===
 async def step4_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -192,6 +191,9 @@ async def step4_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await query.answer()
     user_id = query.from_user.id
     user_data[user_id]["strength"] = query.data
+
+    # 💾 сохраняем прогресс
+    save_partial_data(user_id)
 
     keyboard = [
         [InlineKeyboardButton("😅 Лёгкий хаос и миллион задач", callback_data="1_var")],
@@ -205,17 +207,15 @@ async def step4_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
     return STEP_5
 
-async def step4_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    ...
-    user_data[user_id]["strength"] = query.data
-    save_partial_data(user_id)
-
 # === 5. Послевкусие ===
 async def step5_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
     user_id = query.from_user.id
     user_data[user_id]["feeling"] = query.data
+
+    # 💾 сохраняем после выбора чувства
+    save_partial_data(user_id)
 
     keyboard = [
         [InlineKeyboardButton("⚖️ Юридическую защиту — не хочу рисковать", callback_data="1_var")],
@@ -230,17 +230,14 @@ async def step5_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
     return STEP_6
 
-async def step5_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    ...
-    user_data[user_id]["feeling"] = query.data
-    save_partial_data(user_id)
-
-# === 6. Анализ “рецепта” ===
 async def step6_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
     user_id = query.from_user.id
     user_data[user_id]["secret"] = query.data
+
+    # 💾 сохраняем после выбора “секретного ингредиента”
+    save_partial_data(user_id)
 
     await query.edit_message_text(
         "Подожди, я мешаю… \n\n"
@@ -254,10 +251,6 @@ async def step6_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
     return STEP_7
 
-async def step6_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    ...
-    user_data[user_id]["secret"] = query.data
-    save_partial_data(user_id)
 
 # === 7. Рецепт бизнеса (универсальная сборка по комбинации ответов) ===
 async def show_recipe(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -427,4 +420,5 @@ def main():
 if __name__ == "__main__":
 
     main()
+
 
