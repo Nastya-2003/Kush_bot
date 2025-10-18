@@ -130,6 +130,7 @@ async def step1_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # === 2. Подтверждение ===
 async def step2_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    print("DEBUG: step2_buttons called, data =", update.callback_query.data)
     query = update.callback_query
     await query.answer()
 
@@ -167,6 +168,7 @@ async def step2_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # === 3. Вид бизнеса ===
 async def handle_business_type(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    print("DEBUG: handle_business_type, data =", update.callback_query.data)
     user_id = update.effective_user.id
     user_data[user_id] = {"business": update.message.text}
 
@@ -187,6 +189,7 @@ async def handle_business_type(update: Update, context: ContextTypes.DEFAULT_TYP
 
 # === 4. Крепость ===
 async def step4_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    print("DEBUG: step4_buttons called, data =", update.callback_query.data)
     query = update.callback_query
     await query.answer()
     user_id = query.from_user.id
@@ -209,6 +212,7 @@ async def step4_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # === 5. Послевкусие ===
 async def step5_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    print("DEBUG: step5_buttons called, data =", update.callback_query.data)
     query = update.callback_query
     await query.answer()
     user_id = query.from_user.id
@@ -231,6 +235,7 @@ async def step5_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
     return STEP_6
 
 async def step6_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    print("DEBUG: step6_buttons called, data =", update.callback_query.data)
     query = update.callback_query
     await query.answer()
     user_id = query.from_user.id
@@ -372,6 +377,7 @@ async def step8_collect(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # === 9. Сбор текста и сохранение в Excel ===
 async def save_to_excel(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    print("DEBUG: save_to_excel called. user:", update.effective_user.id, "text:", update.message.text)
     user_id = update.effective_user.id
     user_data[user_id]["contact_info"] = update.message.text
     data = user_data[user_id]
@@ -421,6 +427,7 @@ def main():
 if __name__ == "__main__":
 
     main()
+
 
 
 
