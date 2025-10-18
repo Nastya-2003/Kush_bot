@@ -412,6 +412,7 @@ def main():
             STEP_9: [MessageHandler(filters.TEXT & ~filters.COMMAND, save_to_excel)],
         },
         fallbacks=[]
+        per_message=True 
     )
     app.add_handler(conv)
     print("✅ Бот запущен...")
@@ -420,5 +421,6 @@ def main():
 if __name__ == "__main__":
 
     main()
+
 
 
