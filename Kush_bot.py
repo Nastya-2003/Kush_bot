@@ -17,7 +17,7 @@ import os
 load_dotenv()
 
 TOKEN = os.getenv("TOKEN")
-FILE_PATH = r"C:\Users\HONOR\Yandex.Disk\Kush_bot\leads.xlsx"
+FILE_PATH = "/root/kush_bot/leads.xlsx"
 
 # Этапы
 STEP_1, STEP_2, STEP_3, STEP_4, STEP_5, STEP_6, STEP_7, STEP_8, STEP_9 = range(9)
@@ -381,4 +381,5 @@ def main():
     app.run_polling()
 
 if __name__ == "__main__":
+
     main()
