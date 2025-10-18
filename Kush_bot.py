@@ -23,31 +23,6 @@ FILE_PATH = "/root/kush_bot/leads.xlsx"
 STEP_1, STEP_2, STEP_3, STEP_4, STEP_5, STEP_6, STEP_7, STEP_8, STEP_9 = range(9)
 user_data = {}
 
-def save_partial_data(user_id):
-    """Сохраняет текущие данные пользователя в Excel (частично или полностью)"""
-    ensure_excel_exists()
-    data = user_data.get(user_id, {})
-    if not data:
-        return
-
-    try:
-        wb = openpyxl.load_workbook(FILE_PATH)
-        ws = wb.active
-        ws.append([
-            data.get("name", ""),
-            data.get("contact_info", ""),
-            data.get("business", ""),
-            data.get("strength", ""),
-            data.get("feeling", ""),
-            data.get("secret", ""),
-            datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
-        ])
-        wb.save(FILE_PATH)
-        print(f"💾 Данные пользователя {user_id} сохранены в Excel.")
-    except Exception as e:
-        print(f"⚠️ Ошибка при сохранении данных {user_id}: {e}")
-
-
 # === Функция создания Excel файла, если его нет ===
 def ensure_excel_exists():
     if not os.path.exists(FILE_PATH):
@@ -130,7 +105,6 @@ async def step1_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # === 2. Подтверждение ===
 async def step2_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    print("DEBUG: step2_buttons called, data =", update.callback_query.data)
     query = update.callback_query
     await query.answer()
 
@@ -168,12 +142,8 @@ async def step2_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # === 3. Вид бизнеса ===
 async def handle_business_type(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    print("DEBUG: handle_business_type, data =", update.callback_query.data)
     user_id = update.effective_user.id
     user_data[user_id] = {"business": update.message.text}
-
-    # 💾 Сохраняем после ввода вида бизнеса
-    save_partial_data(user_id)
 
     keyboard = [
         [InlineKeyboardButton("🐣 Только начал — хочу поставить на поток", callback_data="1_var")],
@@ -186,17 +156,12 @@ async def handle_business_type(update: Update, context: ContextTypes.DEFAULT_TYP
     )
     return STEP_4
 
-
 # === 4. Крепость ===
 async def step4_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    print("DEBUG: step4_buttons called, data =", update.callback_query.data)
     query = update.callback_query
     await query.answer()
     user_id = query.from_user.id
     user_data[user_id]["strength"] = query.data
-
-    # 💾 сохраняем прогресс
-    save_partial_data(user_id)
 
     keyboard = [
         [InlineKeyboardButton("😅 Лёгкий хаос и миллион задач", callback_data="1_var")],
@@ -212,14 +177,10 @@ async def step4_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # === 5. Послевкусие ===
 async def step5_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    print("DEBUG: step5_buttons called, data =", update.callback_query.data)
     query = update.callback_query
     await query.answer()
     user_id = query.from_user.id
     user_data[user_id]["feeling"] = query.data
-
-    # 💾 сохраняем после выбора чувства
-    save_partial_data(user_id)
 
     keyboard = [
         [InlineKeyboardButton("⚖️ Юридическую защиту — не хочу рисковать", callback_data="1_var")],
@@ -234,15 +195,12 @@ async def step5_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
     return STEP_6
 
+# === 6. Анализ “рецепта” ===
 async def step6_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    print("DEBUG: step6_buttons called, data =", update.callback_query.data)
     query = update.callback_query
     await query.answer()
     user_id = query.from_user.id
     user_data[user_id]["secret"] = query.data
-
-    # 💾 сохраняем после выбора “секретного ингредиента”
-    save_partial_data(user_id)
 
     await query.edit_message_text(
         "Подожди, я мешаю… \n\n"
@@ -255,7 +213,6 @@ async def step6_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
         ])
     )
     return STEP_7
-
 
 # === 7. Рецепт бизнеса (универсальная сборка по комбинации ответов) ===
 async def show_recipe(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -376,8 +333,8 @@ async def step8_collect(update: Update, context: ContextTypes.DEFAULT_TYPE):
     return STEP_9
 
 # === 9. Сбор текста и сохранение в Excel ===
+# === 9. Сбор текста и сохранение в Excel ===
 async def save_to_excel(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    print("DEBUG: save_to_excel called. user:", update.effective_user.id, "text:", update.message.text)
     user_id = update.effective_user.id
     user_data[user_id]["contact_info"] = update.message.text
     data = user_data[user_id]
@@ -417,18 +374,11 @@ def main():
             STEP_8: [CallbackQueryHandler(step8_collect, pattern="yes_recipe|later")],
             STEP_9: [MessageHandler(filters.TEXT & ~filters.COMMAND, save_to_excel)],
         },
-        fallbacks=[],
-        per_message=True 
+        fallbacks=[]
     )
     app.add_handler(conv)
     print("✅ Бот запущен...")
     app.run_polling()
 
 if __name__ == "__main__":
-
     main()
-
-
-
-
-
