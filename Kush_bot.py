@@ -1,5 +1,6 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from dotenv import load_dotenv
+from telegram import BotCommand
 from telegram.ext import (
     ApplicationBuilder,
     CommandHandler,
@@ -58,7 +59,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     "🥁 Добро пожаловать в KUSH-Бар бизнеса — место, где мы смешиваем идеальные рецепты брендов.\n\n"
                     "Я — Бармен. Сегодня я приготовлю коктейль из твоего бизнеса.\n\n"
                     "🚀 5 минут — и ты узнаешь:\n"
-                    "• какой у тебя “вкус бизнеса;”\n"
+                    "• какой у тебя “вкус бизнеса”;\n"
                     "• что делает его горьким или пресным.\n"
                     "А также получишь свой фирменный рецепт 💎\n\n"
                     "Готов?"
@@ -235,10 +236,10 @@ async def show_recipe(update: Update, context: ContextTypes.DEFAULT_TYPE):
     headline = strength_head.get(strength, "Авторский коктейль KUSH 🍸")
 
     strength_ingredients = {
-        "1_var": ["свежая идея", "щепотка энтузиазма", "немного хаоса (но это лечится)"],
-        "2_var": ["уверенность", "пара ручных процессов", "немного недосистемы"],
-        "3_var": ["опытная команда", "фирменный стиль", "немного организационного хаоса"],
-        "4_var": ["отлаженные процессы", "брендбук", "ясная структура ответственности"]
+        "1_var": ["свежая идея;", "щепотка энтузиазма;", "немного хаоса (но это лечится);"],
+        "2_var": ["уверенность;", "пара ручных процессов;", "немного недосистемы;"],
+        "3_var": ["опытная команда;", "фирменный стиль;", "немного организационного хаоса;"],
+        "4_var": ["отлаженные процессы;", "брендбук;", "ясная структура ответственности;"]
     }
     ingredients = strength_ingredients.get(strength, ["идея", "сила воли"])
 
@@ -327,12 +328,11 @@ async def step8_collect(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "Напиши, пожалуйста:\n"
         "1️⃣ Имя\n"
         "2️⃣ Ссылку на Telegram / Instagram\n"
-        "3️⃣ Чем занимаешься\n\n"
+        "3️⃣ Какими инструментами вы пользуетесь каждый день для ведения бизнеса\n\n"
         "После этого я запишу тебя на бесплатную консультацию от команды KUSH 🍸"
     )
     return STEP_9
 
-# === 9. Сбор текста и сохранение в Excel ===
 # === 9. Сбор текста и сохранение в Excel ===
 async def save_to_excel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
@@ -359,8 +359,18 @@ async def save_to_excel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text( "✅ Готово!\n\n" "Ты официально в списке гостей KUSH-Барменов 🍸\n\n" "💬 В ближайшее время (Пн-пт 9:00-19:00 по мск) с тобой свяжется Анна, чтобы назначить встречу!" )
     return ConversationHandler.END
 
+# === Установка команд бота ===
+async def set_commands(application):
+    commands = [
+        BotCommand("start", "Запустить бота 🍸"),
+    ]
+    await application.bot.set_my_commands(commands)
+
 def main():
     app = ApplicationBuilder().token(TOKEN).build()
+    
+    app.post_init = set_commands
+    
     conv = ConversationHandler(
         entry_points=[CommandHandler("start", start)],
         states={
@@ -371,7 +381,7 @@ def main():
             STEP_5: [CallbackQueryHandler(step5_buttons)],
             STEP_6: [CallbackQueryHandler(step6_buttons)],
             STEP_7: [CallbackQueryHandler(show_recipe, pattern="show_recipe")],
-            STEP_8: [CallbackQueryHandler(step8_collect, pattern="yes_recipe|later")],
+            STEP_8: [CallbackQueryHandler(step8_collect)],
             STEP_9: [MessageHandler(filters.TEXT & ~filters.COMMAND, save_to_excel)],
         },
         fallbacks=[]
@@ -381,4 +391,5 @@ def main():
     app.run_polling()
 
 if __name__ == "__main__":
+
     main()
